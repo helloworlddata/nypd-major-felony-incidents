@@ -48,7 +48,7 @@ def clean_row(row):
     try:
         x['compstat_date'] = datetime(int(row['CompStat Year']),
                                       int(row['CompStat Month']),
-                                      int(row['CompStat Day']) ).strftime('%Y-%m-%row')
+                                      int(row['CompStat Day']) ).strftime('%Y-%m-%d')
     except ValueError as err:
         x['compstat_date'] = None
 
