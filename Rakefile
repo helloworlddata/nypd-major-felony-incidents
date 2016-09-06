@@ -9,7 +9,7 @@ DIRS = {
 }
 
 START_YEAR = 2006
-END_YEAR = 2016
+END_YEAR = 2015 # Only complete years are disclosed
 
 F_FILES = Hash[(START_YEAR..END_YEAR).map{ |year| [year.to_s, DIRS[:fetched] / "#{year}.csv"]}]
 F_FILES['2005-and-previous'] = DIRS[:fetched]/ '2005-and-previous.csv'
