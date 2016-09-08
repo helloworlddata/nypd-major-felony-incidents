@@ -1,3 +1,44 @@
+title: NYPD 7 Major Felony Incidents
+
+
+caveats:
+    - Offenses that lack an X coordinate and Y coordinate are geo-coded as occurring at the police station house within the precinct of occurrence.
+
+    -  Rape offenses are geo-coded as occurring at the police station house within the precinct of occurrence.
+
+    - The CompStat Month, Day and Year represent the date the incident was reported to the NYPD and subsequently entered into the Department's record management system. Data presented here are based on the year the incident was reported, not necessarily when it occurred. The result is that some crimes listed here were reported during this time, but may have occurred in a previous year.
+
+
+    - The Hour of Occurrence is based on the 24-hour clock. 0000 hours represents 12:00am through 12:59am, 0100 hours represents 1:00am through 1:59am, etc.
+
+traits:
+  geospatial:
+    fields:
+      - name: longitude
+        type: longitude
+        fuzzed: true
+
+      - name: latitude
+        type: latitude
+        fuzzed: true
+
+  chronological:
+    fields:
+      - name: occurrence_datetime
+        granularity: minute
+      - name: compstat_date
+        granularity: day
+
+indexes:
+  - fields: [id]
+    primary: true
+  - fields: [occurrence_datetime]
+  - fields: [compstat_date]
+  - fields: [longitude]
+  - fields: [latitude]
+  - fields: [mag]
+
+
 
 
 fields:
@@ -9,6 +50,7 @@ fields:
     - 2015-12-31 23:36
     - 2011-07-13 00:11
   - name: offense
+    description: Type of felony
     type: string
     length: 30
     enumerations:
@@ -19,18 +61,23 @@ fields:
     - MURDER & NON-NEGL. MANSLAUGHTE
     - RAPE
     - ROBBERY
+
   - name: borough
     type: string
     has_nulls: true
     length: 13
     enumerations:
-    - (null)
-    - BRONX
-    - BROOKLYN
-    - MANHATTAN
-    - QUEENS
-    - STATEN ISLAND
+        - value: "(null)"
+          description: This NULL-string is in the original data. I've left it in just in case it means something other than a blank value.
+        - BRONX
+        - BROOKLYN
+        - MANHATTAN
+        - QUEENS
+        - STATEN ISLAND
+
+
   - name: precinct
+    description: NYPD precinct number
     type: integer
     has_nulls: true
     length:
@@ -39,8 +86,11 @@ fields:
     - 1
     - 123
     - 107
+
   - name: latitude
+    description: Incidents locations have been rounded to the midpoint of the street segments in which they occur.
     type: float
+    unsigned: false
     length:
     - 2
     - 5
@@ -49,6 +99,8 @@ fields:
     - 59.58051
     - 40.77669
   - name: longitude
+    description: |
+        Incidents locations have been rounded to the midpoint of the street segments in which they occur.
     type: float
     unsigned: false
     length:
@@ -58,8 +110,11 @@ fields:
     - -77.51921
     - -73.70071
     - -73.85434
+
+
   - name: sector
     type: string
+    description: Each precinct is divided into several sectors
     has_nulls: true
     length: 1
     examples:
@@ -67,6 +122,7 @@ fields:
     - D
     - '9'
     - V
+
   - name: jurisdiction
     type: string
     length: 33
@@ -75,7 +131,10 @@ fields:
     - N.Y. HOUSING POLICE
     - DISTRICT ATTORNEY OFFICE
     - CONRAIL
+
   - name: compstat_date
+    description: |
+        The date the incident was reported to the NYPD and subsequently entered into the Department's record management system
     type: date
     examples:
     - '2006-01-01'
