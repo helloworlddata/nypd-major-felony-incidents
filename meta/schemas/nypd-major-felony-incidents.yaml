@@ -1,0 +1,108 @@
+
+
+fields:
+  - name: occurrence_datetime
+    type: datetime
+    format: '%Y-%m-%d %H:%M'
+    examples:
+    - 1900-03-10 19:00
+    - 2015-12-31 23:36
+    - 2011-07-13 00:11
+  - name: offense
+    type: string
+    length: 30
+    enumerations:
+    - BURGLARY
+    - FELONY ASSAULT
+    - GRAND LARCENY
+    - GRAND LARCENY OF MOTOR VEHICLE
+    - MURDER & NON-NEGL. MANSLAUGHTE
+    - RAPE
+    - ROBBERY
+  - name: borough
+    type: string
+    has_nulls: true
+    length: 13
+    enumerations:
+    - (null)
+    - BRONX
+    - BROOKLYN
+    - MANHATTAN
+    - QUEENS
+    - STATEN ISLAND
+  - name: precinct
+    type: integer
+    has_nulls: true
+    length:
+    - 3
+    examples:
+    - 1
+    - 123
+    - 107
+  - name: latitude
+    type: float
+    length:
+    - 2
+    - 5
+    examples:
+    - 40.11271
+    - 59.58051
+    - 40.77669
+  - name: longitude
+    type: float
+    unsigned: false
+    length:
+    - 2
+    - 5
+    examples:
+    - -77.51921
+    - -73.70071
+    - -73.85434
+  - name: sector
+    type: string
+    has_nulls: true
+    length: 1
+    examples:
+    - A
+    - D
+    - '9'
+    - V
+  - name: jurisdiction
+    type: string
+    length: 33
+    examples:
+    - N.Y. POLICE DEPT
+    - N.Y. HOUSING POLICE
+    - DISTRICT ATTORNEY OFFICE
+    - CONRAIL
+  - name: compstat_date
+    type: date
+    examples:
+    - '2006-01-01'
+    - '2015-12-31'
+    - '2015-07-03'
+  - name: object_id
+    type: integer
+    length: 6
+    examples:
+    - 1123724
+    - 831805
+  - name: identifier
+    type: string
+    length: 8
+    examples:
+    - e76ca03b
+    - 4220c384
+  - name: xcoord
+    type: integer
+    length: 6
+    examples:
+    - 1067186
+    - 1003911
+  - name: ycoord
+    type: integer
+    length: 8
+    examples:
+    - 7220451
+    - 257700
+
