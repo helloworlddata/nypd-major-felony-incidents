@@ -1,0 +1,2 @@
+- Generate schema
+- change occurrence_date to occurrence_datetime

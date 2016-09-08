@@ -7,6 +7,7 @@ DIRS = {
     'fetched' => CORRAL_DIR.join('fetched'),
     'cleaned' => CORRAL_DIR.join('cleaned'),
     'published' => DATA_DIR,
+    'samples' => DATA_DIR / 'samples'
 }
 
 START_YEAR = 2006
@@ -21,6 +22,7 @@ C_FILES = {
 P_FILES = {
     'through-2009' => DIRS['published'] / 'nypd-major-felony-incidents-through-2009.csv',
     '2010-through-2015' => DIRS['published'] / 'nypd-major-felony-incidents-2010-through-2015.csv',
+    '2010-excerpt' => DIRS['samples'] / '2010-excerpt.csv'
 }
 
 
@@ -35,53 +37,65 @@ task :setup do
 end
 
 
-namespace :publish do
-    desc 'Fetch all data'
-    task :fetch => :setup do
-        F_FILES.each_value{|fname| Rake::Task[fname].execute() }
-    end
+desc 'Fetch all data'
+task :fetch => :setup do
+    F_FILES.each_value{|fname| Rake::Task[fname].execute() }
+end
 
-    desc "Clean all data, compile into one file"
-    task :clean  do
-        Rake::Task[C_FILES['all']].execute()
-    end
+desc "Clean all data, compile into one file"
+task :compile  do
+    Rake::Task[C_FILES['all']].execute()
+end
 
-    task :catalog do
-        P_FILES.each_value do |fname|
-            Rake::Task[fname].execute()
-        end
+task :publish do
+    P_FILES.each_value do |fname|
+        Rake::Task[fname].execute()
     end
 end
 
 
 
-namespace :filings do
-    desc 'Publish data 2009 and previous'
-    file P_FILES['through-2009'] => C_FILES['all'] do
-        # pure ruby woooo
-        open(P_FILES['through-2009'], 'w') do |wf|
-            File.foreach(C_FILES['all']).with_index do |line, lineno|
-                wf.puts line if line < '2010' or lineno == 0
+namespace :files do
+
+    namespace :published do
+        desc 'Publish data 2009 and previous'
+        file P_FILES['through-2009'] => C_FILES['all'] do
+            # pure ruby woooo
+            open(P_FILES['through-2009'], 'w') do |wf|
+                File.foreach(C_FILES['all']).with_index do |line, lineno|
+                    wf.puts line if line < '2010' or lineno == 0
+                end
             end
         end
-    end
 
-    desc 'Publish data 2010 through 2015'
-    file P_FILES['2010-through-2015'] => C_FILES['all'] do
-        # pure ruby woooo
-        open(P_FILES['2010-through-2015'], 'w') do |wf|
-            File.foreach(C_FILES['all']).with_index do |line, lineno|
-                wf.puts line if (line > '2010' && line <= '2016') or lineno == 0
+        desc 'Publish data 2010 through 2015'
+        file P_FILES['2010-through-2015'] => C_FILES['all'] do
+            # pure ruby woooo
+            open(P_FILES['2010-through-2015'], 'w') do |wf|
+                File.foreach(C_FILES['all']).with_index do |line, lineno|
+                    wf.puts line if (line > '2010' && line <= '2016') or lineno == 0
+                end
             end
         end
-    end
 
+        desc 'sample from year 2010'
+        file P_FILES['2010-excerpt'] => C_FILES['all'] do
+            srcfile = C_FILES['all']
+            destfile = P_FILES['2010-excerpt']
+            sh %Q{
+                head -n 1 #{srcfile} > #{destfile};
+                ack '^2010-03' #{srcfile} >> #{destfile}
+            }
+
+        end
+
+    end
 
     desc "Create cleaned and sorted file from the fetched data"
     file C_FILES['all'] => F_FILES.values() do
         sh ["cat", F_FILES.values(), '|',
             'python', SCRIPTS / 'clean.py', '-',
-            '|', 'csvsort -c 1', '>',
+            '|', 'csvsort -c 1 --no-inference', '>',
 
             C_FILES['all']
             ].join(' ')

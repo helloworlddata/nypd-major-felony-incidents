@@ -14,7 +14,7 @@ RAW_HEADERS = [ "OBJECTID","Identifier","Occurrence Date","Day of Week",
                 "Offense","Offense Classification","Sector","Precinct","Borough",
                 "Jurisdiction","XCoordinate","YCoordinate","Location 1"]
 
-CLEAN_HEADERS = ['occurrence_date', 'offense','borough', 'precinct',
+CLEAN_HEADERS = ['occurrence_datetime', 'offense','borough', 'precinct',
                 'latitude', 'longitude', 'sector',  'jurisdiction',
                  'compstat_date', 'object_id', 'identifier',
                   'xcoord', 'ycoord', ]
@@ -39,9 +39,9 @@ def clean_row(row):
     # some Occurrence Date values are blank
     try:
         dt = datetime.strptime(row['Occurrence Date'], '%m/%d/%Y %I:%M:%S %p')
-        x['occurrence_date'] = dt.strftime('%Y-%m-%d %H:%M:%S')
+        x['occurrence_datetime'] = dt.strftime('%Y-%m-%d %H:%M')
     except ValueError as err:
-        x['occurrence_date'] = None
+        x['occurrence_datetime'] = None
 
     # Some Compstat values are blank
     # apparently compstat date is different than occurence date...
@@ -55,7 +55,8 @@ def clean_row(row):
     # Now try to split the Location 1 value into latitude/longitude
     _mtch = re.search(r'\((.+?), (.+?)\)', row['Location 1'])
     if _mtch:
-        x['latitude'], x['longitude'] = _mtch.groups()
+        # don't need all the degrees of precision
+        x['latitude'], x['longitude'] = [round(float(z), 5) for z in _mtch.groups()]
     else:
         x['latitude'] = x['longitude'] = None
 
